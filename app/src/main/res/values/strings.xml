@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Calculator</string>
+    <string name="tb1">C</string>
+    <string name="tb2">+/-</string>
+    <string name="tb3">%</string>
+    <string name="tb4">/</string>
+    <string name="tb5">7</string>
+    <string name="tb6">8</string>
+    <string name="tb7">9</string>
+    <string name="tb8">X</string>
+    <string name="tb9">4</string>
+    <string name="tb10">5</string>
+    <string name="tb11">6</string>
+    <string name="tb12">-</string>
+    <string name="tb13">1</string>
+    <string name="tb14">2</string>
+    <string name="tb15">3</string>
+    <string name="tb16">+</string>
+    <string name="tb17">0</string>
+    <string name="tb18">.</string>
+    <string name="tb19">=</string>
+</resources>
