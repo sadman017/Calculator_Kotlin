@@ -10,9 +10,11 @@ import androidx.core.view.WindowInsetsCompat
 
 class Calculator : AppCompatActivity() {
     private lateinit var display: TextView
-    private var currentOperator: String? = null
-    private var firstValue: Double = 0.0
-    private var isNewOperation = true
+    private var currentInput = ""
+    private var operator = ""
+    private var result = 0.0
+    private var lastInput = ""
+    private var newInput = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,72 +42,79 @@ class Calculator : AppCompatActivity() {
         findViewById<Button>(R.id.tb24).setOnClickListener { setOperator("×") }
         findViewById<Button>(R.id.tb14).setOnClickListener { setOperator("÷") }
         findViewById<Button>(R.id.tb53).setOnClickListener { calculateResult() }
-        findViewById<Button>(R.id.tb52).setOnClickListener { appendDot() }
-        findViewById<Button>(R.id.tb12).setOnClickListener { deleteLastCharacter() }
-        findViewById<Button>(R.id.tb13).setOnClickListener { percentage() }
-
+        findViewById<Button>(R.id.tb52).setOnClickListener { appendPoint() }
+        findViewById<Button>(R.id.tb12).setOnClickListener { invertSign() }
+        findViewById<Button>(R.id.tb13).setOnClickListener { percent() }
     }
 
     private fun appendNumber(number: String) {
-        if (isNewOperation) {
-            display.text = number
-            isNewOperation = false
-        } else {
-            display.text = display.text.toString() + number
+        if (newInput) {
+            currentInput = ""
+            newInput = false
         }
+        currentInput += number
+        display.text = currentInput
     }
 
-    private fun clearDisplay() {
-        display.text = "0"
-        currentOperator = null
-        firstValue = 0.0
-        isNewOperation = true
+    private fun setOperator(op: String) {
+        if (!newInput) {
+            calculateResult()
+        }
+        operator = op
+        lastInput = currentInput
+
+        currentInput += " $operator "
+        newInput = false
+        display.text = currentInput
     }
 
-    private fun setOperator(operator: String) {
-        if (display.text.isNotEmpty()) {
-            firstValue = display.text.toString().toDouble()
-            currentOperator = operator
-            isNewOperation = true
+    private fun appendPoint() {
+        if(!currentInput.contains(".") || lastInput.contains(".")) {
+            currentInput += "."
+            display.text = currentInput
         }
     }
 
     private fun calculateResult() {
-        if (currentOperator != null && display.text.isNotEmpty()) {
-            val secondValue = display.text.toString().toDouble()
-            val result = when (currentOperator) {
-                "+" -> firstValue + secondValue
-                "-" -> firstValue - secondValue
-                "×" -> firstValue * secondValue
-                "÷" -> if (secondValue != 0.0) firstValue / secondValue else Double.NaN
-                else -> 0.0
-            }
-            display.text = result.toString()
-            currentOperator = null
-            isNewOperation = true
+        val firstOperand = lastInput.toDoubleOrNull() ?: 0.0
+        val secondOperand = currentInput.split(" ").last().toDoubleOrNull() ?: 0.0
+
+        result = when (operator) {
+            "+" -> firstOperand + secondOperand
+            "-" -> firstOperand - secondOperand
+            "×" -> firstOperand * secondOperand
+            "÷" -> if (secondOperand != 0.0) firstOperand / secondOperand else 0.0
+            else -> secondOperand
         }
+
+        val displayResult = if (result % 1.0 == 0.0) {
+            result.toInt().toString()
+        } else {
+            result.toString()
+        }
+
+        display.text = displayResult
+
+        currentInput = displayResult
+        newInput = true
     }
 
-    private fun appendDot() {
-        if (!display.text.contains(".")) {
-            display.text = display.text.toString() + "."
-        }
+    private fun clearDisplay() {
+        currentInput = "0"
+        lastInput = ""
+        operator = ""
+        result = 0.0
+        newInput = true
+        display.text = currentInput
     }
 
-    private fun deleteLastCharacter() {
-        if (display.text.isNotEmpty()) {
-            display.text = display.text.substring(0, display.text.length - 1)
-            if (display.text.isEmpty()) {
-                display.text = "0"
-            }
-        }
+    private fun invertSign() {
+        currentInput = (currentInput.toDoubleOrNull()?.times(-1)).toString()
+        display.text = currentInput
     }
 
-    private fun percentage() {
-        if (display.text.isNotEmpty()) {
-            val number = display.text.toString().toDouble()
-            val result = number / 100
-            display.text = result.toString()
-        }
+    private fun percent() {
+        currentInput = (currentInput.toDoubleOrNull()?.div(100)).toString()
+        display.text = currentInput
     }
 }
